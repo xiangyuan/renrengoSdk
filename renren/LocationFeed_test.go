@@ -29,10 +29,11 @@ func TestRequestFeed(t *testing.T) {
 		"latitude":         "30.274085",
 		"longitude":        "120.155070",
 	}
-	f := &LocationFeed{api: api}
-	_, err := f.RequestFeed("location/feed/list", param)
+	f := &FeedResponse{api: api}
+	v, err := f.RequestFeed("location/feed/list", param)
 	if err != nil {
 		fmt.Println("%v", err.Error())
 		return
 	}
+	fmt.Println(v)
 }

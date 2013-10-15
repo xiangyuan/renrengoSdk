@@ -27,11 +27,12 @@ func TestRequestUser(t *testing.T) {
 	param := map[string]string{
 		"userId": "228076041",
 	}
-	u := &User{api: api}
+	u := &RenRenResponse{api: api, RUser: User{}}
 	v, err := u.RequestUser("user/get", param)
 	if err != nil {
-		fmt.Println("%v", err.Error())
+		fmt.Printf("Error %v", err.Error())
 		return
 	}
-	fmt.Println(v)
+	p := v.(*RenRenResponse)
+	fmt.Println(p.RUser.Name)
 }

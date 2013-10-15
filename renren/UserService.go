@@ -9,8 +9,8 @@ import (
  * @type {[type]}
  */
 const (
-	MALE = iota
-	FEMALE
+	MALE   = "MALE"
+	FEMALE = "FEMALE"
 )
 
 /**
@@ -18,17 +18,17 @@ const (
  * @type {[type]}
  */
 const (
-	DOCTOR     = iota //枚举	博士
-	COLLEGE           //枚举	本科
-	GVY               //枚举	校工
-	PRIMARY           //枚举	小学
-	OTHER             //枚举	其他
-	TEACHER           //枚举	教师
-	MASTER            //枚举	硕士
-	HIGHSCHOOL        //枚举	高中
-	TECHNICAL         //枚举	中专技校
-	JUNIOR            //枚举	初中
-	SECRET            //枚举	保密
+	DOCTOR     = "DOCTOR"     //枚举	博士
+	COLLEGE    = "COLLEGE"    //枚举	本科
+	GVY        = "GVY"        //枚举	校工
+	PRIMARY    = "PRIMARY"    //枚举	小学
+	OTHER      = "OTHER"      //枚举	其他
+	TEACHER    = "TEACHER"    //枚举	教师
+	MASTER     = "MASTER"     //枚举	硕士
+	HIGHSCHOOL = "HIGHSCHOOL" //枚举	高中
+	TECHNICAL  = "TECHNICAL"  //枚举	中专技校
+	JUNIOR     = "JUNIOR"     //枚举	初中
+	SECRET     = "SECRET"     //枚举	保密
 )
 
 /**
@@ -36,13 +36,13 @@ const (
  * @type {[type]}
  */
 const (
-	INLOVE        = iota //枚举	恋爱中
-	SINGLE               //枚举	单身
-	MARRIED              //枚举	已婚
-	UNOBVIOUSLOVE        //枚举	暗恋
-	DIVORCE              //枚举	离异
-	ENGAGE               //枚举	订婚
-	OUTLOVE              //枚举	失恋
+	INLOVE        = "INLOVE"        //枚举	恋爱中
+	SINGLE        = "SINGLE"        //枚举	单身
+	MARRIED       = "MARRIED"       //枚举	已婚
+	UNOBVIOUSLOVE = "UNOBVIOUSLOVE" //枚举	暗恋
+	DIVORCE       = "DIVORCE"       //枚举	离异
+	ENGAGE        = "ENGAGE"        //枚举	订婚
+	OUTLOVE       = "OUTLOVE"       //枚举	失恋
 )
 
 type HomeTown struct {
@@ -51,7 +51,7 @@ type HomeTown struct {
 }
 
 type BasicInfo struct {
-	Sex      uint8  `json:"sex"`
+	Sex      string `json:"sex"`
 	Birthday string `json:"birthday"`
 	HomeTown `json:"homeTown"`
 }
@@ -62,7 +62,7 @@ type BasicInfo struct {
 type School struct {
 	Name                string `json:"name"`
 	Year                string `json:"year"`
-	EducationBackground uint8  `json:"educationBackground"`
+	EducationBackground string `json:"educationBackground"`
 	Department          string `json:"department"`
 }
 
@@ -80,6 +80,12 @@ type Work struct {
 	Time     string `json:"time"`
 	Industry `json:"industry"`
 }
+
+type RenRenResponse struct {
+	RUser User `json:"response"`
+	api   *APIRenRen
+}
+
 type User struct {
 	Id           int64   `json:"id"`
 	Name         string  `json:"name"`
@@ -88,26 +94,35 @@ type User struct {
 	BasicInfo    `json:"basicInformation"`
 	Education    []School `json:"education"`
 	Works        []Work   `json:"work"`
-	EmotionState uint8    `json:"emotionalState"`
-	api          *APIRenRen
+	EmotionState string   `json:"emotionalState"`
 }
 
 /**
  * get the user
  */
-func (u *User) RequestUser(path string, parameters map[string]string) (ret interface{}, err error) {
+func (u *RenRenResponse) RequestUser(path string, parameters map[string]string) (ret interface{}, err error) {
 	data, err := api.ApiGet(path, parameters)
 	if err != nil {
 		return nil, err
 	}
-	var v interface{}
-	err = json.Unmarshal([]byte(data), &v)
+	// var v interface{}
+	err = json.Unmarshal([]byte(data), u)
 	if err != nil {
 		return nil, err
 	}
-	if m, ok := v.(map[string]interface{}); ok {
-		ret = m["response"]
-		return ret, nil
-	}
-	return nil, nil
+	return u, err
+
+	// if m, ok := v.(map[string]interface{}); ok {
+	// 	ret = m["response"]
+	// 	err = json.Marshal([]byte(ret))
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	err = json.Unmarshal([]byte(ret), &u)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	return u, nil
+	// }
+	// return nil, nil
 }

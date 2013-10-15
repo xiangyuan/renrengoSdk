@@ -5,22 +5,22 @@ import (
 )
 
 const (
-	TYPE_ALL     = iota //枚举	全部类型
-	TYPE_IMAGE          //枚举	照片类型
-	TYPE_CHECKIN        //	枚举	签到类型
-	TYPE_STATUS         //枚举	状态类型
-	TYPE_POINT
+	TYPE_ALL     = "TYPE_ALL"     //枚举	全部类型
+	TYPE_IMAGE   = "TYPE_IMAGE"   //枚举	照片类型
+	TYPE_CHECKIN = "TYPE_CHECKIN" //	枚举	签到类型
+	TYPE_STATUS  = "TYPE_STATUS"  //枚举	状态类型
+	TYPE_POINT   = "TYPE_POINT"
 )
 
 const (
-	MAIN  = iota //枚举	200pt x 600pt
-	TINY         //枚举	50pt x 50pt
-	LARGE        //枚举	720pt x 720pt
-	HEAD         // 100
+	MAIN  = "MAIN"  //枚举	200pt x 600pt
+	TINY  = "TINY"  //枚举	50pt x 50pt
+	LARGE = "LARGE" //枚举	720pt x 720pt
+	HEAD  = "HEAD"  // 100
 )
 
 type Image struct {
-	Size uint8  `json:"size"`
+	Size string `json:"size"`
 	URL  string `json:"url"`
 }
 
@@ -41,28 +41,27 @@ type LocationFeed struct {
 	Longitude        float64         `json:"longitude"`
 	Latitude         float64         `json:"latitude"`
 	PlaceName        string          `json:"placeName"`
-	LocationFeedType uint8           `json:"locationFeedType"`
+	LocationFeedType string          `json:"locationFeedType"`
 	Content          string          `json:"content,omitempty"`
 	LocationPhoto    []LocationPhoto `json:"locationPhoto,omitempty"`
-	api              *APIRenRen
+}
+
+type FeedResponse struct {
+	feed LocationFeed `json:"response"`
+	api  *APIRenRen
 }
 
 /**
  *
  */
-func (location *LocationFeed) RequestFeed(path string, params map[string]string) (feed interface{}, err error) {
+func (location *FeedResponse) RequestFeed(path string, params map[string]string) (feed interface{}, err error) {
 	data, err := location.api.ApiGet(path, params)
 	if err != nil {
 		return nil, err
 	}
-	var v interface{}
-	err = json.Unmarshal([]byte(data), &v)
+	err = json.Unmarshal([]byte(data), &location)
 	if err != nil {
 		return nil, err
 	}
-	if m, ok := v.(map[string]interface{}); ok {
-		feed = m["response"]
-		return feed, nil
-	}
-	return nil, nil
+	return location, nil
 }

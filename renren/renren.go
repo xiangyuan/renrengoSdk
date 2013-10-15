@@ -42,6 +42,7 @@ type APIRenRen struct {
 	ResponseType   string
 	OAuth2URL      string
 	AccessTokenURL string
+	AccessToken    string
 	Version        string
 }
 
@@ -88,6 +89,9 @@ func (api *APIRenRen) OAuthorURL() (uri string, err error) {
 	return _url.String(), nil
 }
 
+func (api *APIRenRen) SetAccessToken(token string) {
+	api.AccessToken = token
+}
 func (api *APIRenRen) GetAccessToken(code string) (result interface{}, err error) {
 	_url, err := url.Parse(TokenURL)
 	if err != nil {
@@ -100,7 +104,7 @@ func (api *APIRenRen) GetAccessToken(code string) (result interface{}, err error
 		"redirect_uri":  {api.RedirectURL},
 		"code":          {code},
 	}
-	ret, err := sendRequest(_url, GET, q)
+	ret, err := api.sendRequest(_url, GET, q)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +120,7 @@ func (api *APIRenRen) GetAccessToken(code string) (result interface{}, err error
 /**
  * send net request
  */
-func sendRequest(_url *url.URL, method string, param url.Values) (result string, err error) {
+func (api *APIRenRen) sendRequest(_url *url.URL, method string, param url.Values) (result string, err error) {
 	var body io.Reader
 	switch method {
 	case GET:
@@ -135,6 +139,9 @@ func sendRequest(_url *url.URL, method string, param url.Values) (result string,
 		return "", err
 	}
 	request.Header.Add("User-Agent", "renren/"+VERSION)
+	if strings.EqualFold(api.AccessToken, "") == false {
+		request.Header.Add("Authorization", "Bearer "+api.AccessToken)
+	}
 	response, err := client.Do(request)
 	if err != nil {
 		return "", err
@@ -153,47 +160,34 @@ func sendRequest(_url *url.URL, method string, param url.Values) (result string,
 	return "", nil
 }
 
-// func (c *RenRenClient) NewRequest(method string, path string, body interface{}) (req *http.Request, err error) {
-// 	rel, err := url.Parse(path)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	u := c.BaseURL.ResolveReference(rel)
-// 	buf := bytes.NewBuffer([]byte{})
-// 	if body != nil {
-// 		err := json.NewEncoder(buf).Encode(body)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
-// 	req, err = http.NewRequest(method, u.String(), body)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	req.Header.Add("User-Agent", c.UserAgent)
-// 	return req, nil
-// }
+/**
+ * api get request
+ */
+func (api *APIRenRen) ApiGet(path string, parameters map[string]string) (data string, err error) {
+	upath := fmt.Sprintf("%v%v", DefaultBaseURL, path)
+	_url, err := url.Parse(upath)
+	if err != nil {
+		return "", err
+	}
+	param := url.Values{}
+	for k, v := range parameters {
+		param.Set(k, v)
+	}
+	return api.sendRequest(_url, GET, param)
+}
 
-// func (c *RenRenClient) DoRequest(req *http.Request, v interface{}) (response *http.Response, err error) {
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	defer resp.Body.Close()
-
-// 	response = newResponse(resp)
-
-// 	c.Rate = response.Rate
-
-// 	err = CheckResponse(resp)
-// 	if err != nil {
-// 		// even though there was an error, we still return the response
-// 		// in case the caller wants to inspect it further
-// 		return response, err
-// 	}
-
-// 	if v != nil {
-// 		err = json.NewDecoder(resp.Body).Decode(v)
-// 	}
-// 	return response, err
-// }
+/**
+ * api post request
+ */
+func (api *APIRenRen) ApiPost(path string, parameters map[string]string) (data string, err error) {
+	upath := fmt.Sprintf("%v%v", DefaultBaseURL, path)
+	_url, err := url.Parse(upath)
+	if err != nil {
+		return "", err
+	}
+	param := url.Values{}
+	for k, v := range parameters {
+		param.Set(k, v)
+	}
+	return api.sendRequest(_url, POST, param)
+}

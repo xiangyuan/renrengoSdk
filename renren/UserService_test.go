@@ -28,9 +28,10 @@ func TestRequestUser(t *testing.T) {
 		"userId": "228076041",
 	}
 	u := &User{api: api}
-	_, err := u.RequestUser("user/get", param)
+	v, err := u.RequestUser("user/get", param)
 	if err != nil {
 		fmt.Println("%v", err.Error())
 		return
 	}
+	fmt.Println(v)
 }

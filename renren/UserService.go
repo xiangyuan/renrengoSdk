@@ -2,7 +2,6 @@ package renren
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 /**
@@ -107,8 +106,8 @@ func (u *User) RequestUser(path string, parameters map[string]string) (ret inter
 		return nil, err
 	}
 	if m, ok := v.(map[string]interface{}); ok {
-		fmt.Println(m)
-		return m, nil
+		ret = m["response"]
+		return ret, nil
 	}
 	return nil, nil
 }

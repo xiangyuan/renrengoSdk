@@ -2,7 +2,6 @@ package renren
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 const (
@@ -52,16 +51,18 @@ type LocationFeed struct {
  *
  */
 func (location *LocationFeed) RequestFeed(path string, params map[string]string) (feed interface{}, err error) {
-	ret, err := location.api.ApiGet(path, params)
+	data, err := location.api.ApiGet(path, params)
 	if err != nil {
 		return nil, err
 	}
-	m := make(map[string]interface{})
-	err = json.Unmarshal([]byte(ret), &m)
+	var v interface{}
+	err = json.Unmarshal([]byte(data), &v)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(m)
-	// ret = v.(interface{})
+	if m, ok := v.(map[string]interface{}); ok {
+		feed = m["response"]
+		return feed, nil
+	}
 	return nil, nil
 }

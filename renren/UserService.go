@@ -2,6 +2,8 @@ package renren
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 )
 
 /**
@@ -81,12 +83,11 @@ type Work struct {
 	Industry `json:"industry"`
 }
 
-type RenRenResponse struct {
-	RUser User `json:"response"`
-	api   *APIRenRen
-}
+// type RenRenResponse struct {
+// 	RUser User `json:"response"`
+// }
 
-type User struct {
+type EntityUser struct {
 	Id           int64   `json:"id"`
 	Name         string  `json:"name"`
 	Avatar       []Image `json:"avatar"`
@@ -97,32 +98,67 @@ type User struct {
 	EmotionState string   `json:"emotionalState"`
 }
 
+type User struct {
+	RUser EntityUser `json:"response"`
+}
+
+type Users struct {
+	RUsers []EntityUser `json:"response"`
+}
+
 /**
  * get the user
  */
-func (u *RenRenResponse) RequestUser(path string, parameters map[string]string) (ret interface{}, err error) {
-	data, err := api.ApiGet(path, parameters)
+func (client *ApiClient) RequestUser(path string, parameters map[string]string) (ret interface{}, err error) {
+	data, err := client.api.ApiGet(path, parameters)
 	if err != nil {
 		return nil, err
 	}
-	// var v interface{}
-	err = json.Unmarshal([]byte(data), u)
+	e := new(APIError)
+	err = json.Unmarshal([]byte(data), e)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
-	return u, err
+	if strings.EqualFold(e.ErrorMessage.ErrorCode, "") == false {
+		return nil, e
+	}
+	// umarshal user
+	u := new(User)
+	if err = json.Unmarshal([]byte(data), u); err != nil {
+		return nil, err
+	}
+	return u, nil
+}
 
-	// if m, ok := v.(map[string]interface{}); ok {
-	// 	ret = m["response"]
-	// 	err = json.Marshal([]byte(ret))
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	err = json.Unmarshal([]byte(ret), &u)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	return u, nil
-	// }
-	// return nil, nil
+/**
+ *
+ */
+func (client *ApiClient) BatchUsers(path string, paramerts map[string]string) (users interface{}, err error) {
+	return users, err
+}
+
+/**
+ * 得到用户的好友列表
+ */
+func (client *ApiClient) FriendList(path string, parameters map[string]string) (users interface{}, err error) {
+	data, err := client.api.ApiGet(path, parameters)
+	if err != nil {
+		return nil, err
+	}
+	e := new(APIError)
+	err = json.Unmarshal([]byte(data), e)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	if strings.EqualFold(e.ErrorMessage.ErrorCode, "") == false {
+		return nil, e
+	}
+	// umarshal user
+	u := new(Users)
+	if err = json.Unmarshal([]byte(data), u); err != nil {
+		return nil, err
+	}
+	return u.RUsers, nil
 }

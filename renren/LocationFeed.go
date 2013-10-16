@@ -2,6 +2,7 @@ package renren
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 const (
@@ -32,36 +33,42 @@ type LocationPhoto struct {
 }
 
 type LocationFeed struct {
-	UserId           int64           `json:"userId"`
-	UserName         string          `json:"userName"`
-	HeadURL          string          `json:"headUrl"`
-	placeId          string          `json:"placeId"`
-	ReplyCount       int64           `json:"replyCount,omitempty"`
-	UgcId            int64           `json:"ugcId"`
-	Longitude        float64         `json:"longitude"`
-	Latitude         float64         `json:"latitude"`
-	PlaceName        string          `json:"placeName"`
-	LocationFeedType string          `json:"locationFeedType"`
-	Content          string          `json:"content,omitempty"`
-	LocationPhoto    []LocationPhoto `json:"locationPhoto,omitempty"`
-}
-
-type FeedResponse struct {
-	feed LocationFeed `json:"response"`
-	api  *APIRenRen
+	feed struct {
+		UserId           int64           `json:"userId"`
+		UserName         string          `json:"userName"`
+		HeadURL          string          `json:"headUrl"`
+		placeId          string          `json:"placeId"`
+		ReplyCount       int64           `json:"replyCount,omitempty"`
+		UgcId            int64           `json:"ugcId"`
+		Longitude        float64         `json:"longitude"`
+		Latitude         float64         `json:"latitude"`
+		PlaceName        string          `json:"placeName"`
+		LocationFeedType string          `json:"locationFeedType"`
+		Content          string          `json:"content,omitempty"`
+		LocationPhoto    []LocationPhoto `json:"locationPhoto,omitempty"`
+	} `json:"response"`
 }
 
 /**
  *
  */
-func (location *FeedResponse) RequestFeed(path string, params map[string]string) (feed interface{}, err error) {
+func (location *ApiClient) RequestFeed(path string, params map[string]string) (feed interface{}, err error) {
 	data, err := location.api.ApiGet(path, params)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal([]byte(data), &location)
+	e := new(APIError)
+	err = json.Unmarshal([]byte(data), e)
 	if err != nil {
 		return nil, err
 	}
-	return location, nil
+	if strings.EqualFold(e.ErrorMessage.ErrorCode, "") == false {
+		return nil, e
+	}
+	f := new(LocationFeed)
+	err = json.Unmarshal([]byte(data), f)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }

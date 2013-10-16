@@ -27,12 +27,28 @@ func TestRequestUser(t *testing.T) {
 	param := map[string]string{
 		"userId": "228076041",
 	}
-	u := &RenRenResponse{api: api, RUser: User{}}
-	v, err := u.RequestUser("user/get", param)
+	client := &ApiClient{
+		api: api,
+	}
+	v, err := client.RequestUser("user/get", param)
 	if err != nil {
 		fmt.Printf("Error %v", err.Error())
 		return
 	}
-	p := v.(*RenRenResponse)
-	fmt.Println(p.RUser.Name)
+	fmt.Println(v)
+}
+
+func TestFriendList(t *testing.T) {
+	param := map[string]string{
+		"userId": "228076041",
+	}
+	client := &ApiClient{
+		api: api,
+	}
+	v, err := client.RequestUser("user/friend/list", param)
+	if err != nil {
+		fmt.Printf("Error %v", err.Error())
+		return
+	}
+	fmt.Println(v)
 }

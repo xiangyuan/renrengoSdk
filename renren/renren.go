@@ -12,12 +12,14 @@ import (
 )
 
 type APIError struct {
-	ErrorCode int64
-	Message   string
+	ErrorMessage struct {
+		ErrorCode string `json:"code"`
+		Message   string `json:"message"`
+	} `json:"error"`
 }
 
-func (err *APIError) String() (str string) {
-	return fmt.Sprintf("APIError ErrorMessage:%v ErrorCode %v", err.Message, err.ErrorCode)
+func (err *APIError) Error() (str string) {
+	return fmt.Sprintf("APIError ErrorMessage:%v ErrorCode %v", err.ErrorMessage.Message, err.ErrorMessage.ErrorCode)
 }
 
 type APIToken struct {
@@ -35,6 +37,16 @@ func (api *APIToken) isExpired() bool {
 	return api.AccessToken == "" || api.RefreshToken == "" || api.expires < time.Now().Unix()
 }
 
+/*
+ * client
+ */
+type ApiClient struct {
+	api *APIRenRen
+}
+
+/**
+ * api client
+ */
 type APIRenRen struct {
 	ApiKey         string
 	ApiSecret      string
@@ -92,6 +104,10 @@ func (api *APIRenRen) OAuthorURL() (uri string, err error) {
 func (api *APIRenRen) SetAccessToken(token string) {
 	api.AccessToken = token
 }
+
+/**
+ * renren client
+ */
 func (api *APIRenRen) GetAccessToken(code string) (result interface{}, err error) {
 	_url, err := url.Parse(TokenURL)
 	if err != nil {
@@ -112,6 +128,7 @@ func (api *APIRenRen) GetAccessToken(code string) (result interface{}, err error
 	err = json.Unmarshal([]byte(ret), &token)
 	if err != nil {
 		fmt.Println(err.Error())
+		return nil, err
 	}
 
 	return token, nil
@@ -150,6 +167,7 @@ func (api *APIRenRen) sendRequest(_url *url.URL, method string, param url.Values
 	switch response.Header.Get("Conent-Encoding") {
 	case "gzip":
 		fmt.Println("gzip")
+		// need unzip
 	default:
 		conent, err := ioutil.ReadAll(response.Body)
 		if err != nil {

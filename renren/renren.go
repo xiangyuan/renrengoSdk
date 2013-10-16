@@ -148,13 +148,18 @@ func (api *APIRenRen) sendRequest(_url *url.URL, method string, param url.Values
 		}
 		body = nil
 	case POST:
+		fmt.Println(param.Encode())
 		body = strings.NewReader(param.Encode())
 	}
 	client := new(http.Client)
-	fmt.Println(_url.String())
+	// fmt.Println(_url.String())
 	request, err := http.NewRequest(method, _url.String(), body)
 	if err != nil {
 		return "", err
+	}
+	switch method {
+	case POST:
+		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	}
 	request.Header.Add("User-Agent", "renren/"+VERSION)
 	if strings.EqualFold(api.AccessToken, "") == false {

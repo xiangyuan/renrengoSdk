@@ -148,7 +148,6 @@ func (api *APIRenRen) sendRequest(_url *url.URL, method string, param url.Values
 		}
 		body = nil
 	case POST:
-		fmt.Println(param.Encode())
 		body = strings.NewReader(param.Encode())
 	}
 	client := new(http.Client)

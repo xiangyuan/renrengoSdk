@@ -151,6 +151,7 @@ func (api *APIRenRen) sendRequest(_url *url.URL, method string, param url.Values
 		body = strings.NewReader(param.Encode())
 	}
 	client := new(http.Client)
+	fmt.Println(_url.String())
 	request, err := http.NewRequest(method, _url.String(), body)
 	if err != nil {
 		return "", err

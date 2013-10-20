@@ -13,7 +13,7 @@ const (
 	appKey      = "a5bf896d8e704e3dbeee8199d528459f"
 	appSecret   = "877ce8975db543ac913f71f5d07cc864"
 	redirectURL = "http://127.0.0.1:8080/oauth_callback"
-	tmpToken    = "133922|6.08bd3a8fd6fc2d9cff1c314c58398a03.2592000.1384502400-228076041"
+	tmpToken    = "133922|6.066c22c9392183c31d9229e43298b448.2592000.1384833600-228076041"
 )
 
 func init() {
